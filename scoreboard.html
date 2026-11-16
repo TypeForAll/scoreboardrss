@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Street Soccer World Cup</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #00ff00;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+.scoreboard {
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+  background: #111c30;
+  border: 2px solid #34445f;
+  border-radius: 12px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 220px 1fr;
+  align-items: center;
+  gap: 15px;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.team.right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.name {
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.fullname {
+  color: #aab6c8;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.crest {
+  width: 55px;
+  height: 55px;
+  border-radius: 10px;
+  background: #e9bd45;
+  color: black;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+}
+
+.score {
+  text-align: center;
+  font-size: 55px;
+  font-weight: 900;
+}
+
+.timer {
+  text-align: center;
+  color: #ff6565;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.controls {
+  max-width: 1000px;
+  margin: 20px auto;
+  background: #111c30;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0 12px;
+  border: 1px solid #53627a;
+  border-radius: 6px;
+  background: #25344b;
+  color: white;
+}
+
+button {
+  padding: 10px 14px;
+  margin: 4px;
+  border: none;
+  border-radius: 6px;
+  background: #e9bd45;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #43536c;
+  color: white;
+}
+
+button.danger {
+  background: #b83e4c;
+  color: white;
+}
+
+@media(max-width:650px) {
+  .scoreboard {
+    grid-template-columns: 1fr 120px 1fr;
+    padding: 10px;
+  }
+  .name { font-size: 16px; }
+  .score { font-size: 35px; }
+  .crest { width: 35px; height: 35px; }
+  .grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="scoreboard">
+  <div class="team">
+    <div class="crest" id="crestA">A</div>
+    <div>
+      <div class="name" id="displayA">TEAM A</div>
+      <div class="fullname" id="fullA">HOME</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="score">
+      <span id="scoreA">0</span> :
+      <span id="scoreB">0</span>
+    </div>
+    <div class="timer" id="timerDisplay">
+      ● LIVE · 00:00
+    </div>
+    <div class="timer" id="halfDisplay">
+      1ST HALF
+    </div>
+  </div>
+
+  <div class="team right">
+    <div>
+      <div class="name" id="displayB">TEAM B</div>
+      <div class="fullname" id="fullB">AWAY</div>
+    </div>
+    <div class="crest" id="crestB">B</div>
+  </div>
+</div>
+
+<div class="controls">
+
+<h2>Scoreboard Controls</h2>
+
+<div class="grid">
+
+<div>
+<h3>Team A</h3>
+<label>Team abbreviation</label>
+<input id="teamA" value="TEAM A">
+
+<label>Full team name</label>
+<input id="fullTeamA" value="Home">
+
+<label>Badge letters</label>
+<input id="badgeA" value="A">
+
+<label>Badge colour</label>
+<input type="color" id="colorA" value="#e9bd45">
+
+<button onclick="changeScore('A',1)">+ Goal</button>
+<button class="secondary" onclick="changeScore('A',-1)">- Goal</button>
+</div>
+
+<div>
+<h3>Team B</h3>
+<label>Team abbreviation</label>
+<input id="teamB" value="TEAM B">
+
+<label>Full team name</label>
+<input id="fullTeamB" value="Away">
+
+<label>Badge letters</label>
+<input id="badgeB" value="B">
+
+<label>Badge colour</label>
+<input type="color" id="colorB" value="#e9bd45">
+
+<button onclick="changeScore('B',1)">+ Goal</button>
+<button class="secondary" onclick="changeScore('B',-1)">- Goal</button>
+</div>
+
+</div>
+
+<h3>Match Timer</h3>
+
+<label>Half length in minutes</label>
+<input type="number" id="halfLength" value="5" min="1" max="45">
+
+<button onclick="startTimer()">Start</button>
+<button class="secondary" onclick="pauseTimer()">Pause</button>
+<button class="secondary" onclick="resetTimer()">Reset Clock</button>
+<button onclick="nextHalf()">Next Half</button>
+
+<h3>Match Period</h3>
+
+<select id="period" onchange="updatePeriod()">
+  <option>1ST HALF</option>
+  <option>HALF-TIME</option>
+  <option>2ND HALF</option>
+  <option>FULL-TIME</option>
+  <option>EXTRA TIME</option>
+  <option>PENALTIES</option>
+</select>
+
+<h3>Competition</h3>
+<input id="competition" value="STREET SOCCER WORLD CUP">
+
+<button onclick="updateAll()">Update Scoreboard</button>
+<button class="danger" onclick="resetMatch()">Reset Match</button>
+
+</div>
+
+<script>
+let scores = {A:0, B:0};
+let seconds = 0;
+let timer = null;
+
+function updateAll() {
+  displayA.textContent = teamA.value || "TEAM A";
+  displayB.textContent = teamB.value || "TEAM B";
+
+  fullA.textContent = fullTeamA.value || "HOME";
+  fullB.textContent = fullTeamB.value || "AWAY";
+
+  crestA.textContent = badgeA.value || "A";
+  crestB.textContent = badgeB.value || "B";
+
+  crestA.style.background = colorA.value;
+  crestB.style.background = colorB.value;
+
+  scoreA.textContent = scores.A;
+  scoreB.textContent = scores.B;
+
+  halfDisplay.textContent = period.value;
+}
+
+function changeScore(team, amount) {
+  scores[team] = Math.max(0, scores[team] + amount);
+  updateAll();
+}
+
+function startTimer() {
+  if (timer) return;
+
+  timer = setInterval(() => {
+    let max = Number(halfLength.value) * 60;
+
+    if (seconds >= max) {
+      pauseTimer();
+      timerDisplay.textContent = "● TIME UP";
+      return;
+    }
+
+    seconds++;
+    updateClock();
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timer);
+  timer = null;
+  timerDisplay.textContent = "Ⅱ PAUSED · " + formatTime();
+}
+
+function resetTimer() {
+  pauseTimer();
+  seconds = 0;
+  updateClock();
+}
+
+function nextHalf() {
+  pauseTimer();
+  seconds = 0;
+
+  if (period.selectedIndex < period.options.length - 1) {
+    period.selectedIndex++;
+  }
+
+  updateAll();
+  updateClock();
+}
+
+function updatePeriod() {
+  pauseTimer();
+  seconds = 0;
+  updateAll();
+  updateClock();
+}
+
+function formatTime() {
+  let min = Math.floor(seconds / 60);
+  let sec = seconds % 60;
+
+  return String(min).padStart(2,'0') + ":" +
+         String(sec).padStart(2,'0');
+}
+
+function updateClock() {
+  timerDisplay.textContent = "● LIVE · " + formatTime();
+}
+
+function resetMatch() {
+  pauseTimer();
+  scores = {A:0,B:0};
+  seconds = 0;
+  period.selectedIndex = 0;
+  updateAll();
+  updateClock();
+}
+
+document.querySelectorAll("input").forEach(input => {
+  input.addEventListener("input", updateAll);
+});
+
+competition.addEventListener("input", () => {});
+
+updateAll();
+updateClock();
+</script>
+
+</body>
+</html>
